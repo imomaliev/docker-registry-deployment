@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+    nginx:
+        image: nginx:mainline-alpine
+        ports:
+            - 443:443
+            - 80:80
+        links:
+            - frontend
+            - registry
+        depends_on:
+            - frontend
+            - registry
+        volumes:
+            - ./auth:/auth
+            - ./nginx/default.conf:/etc/nginx/conf.d/
+            - ./letsencrypt/etc/:/etc/letsencrypt/
+            - ./letsencrypt/lib/:/var/lib/letsencrypt/
+    registry:
+        image: registry:2
+        ports:
+             - 5000:5000
+        environment:
+            REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+            REGISTRY_AUTH: htpasswd
+            REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+            REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+        volumes:
+            - ./auth:/auth
+            - ./data:/data
+    frontend:
+        image: konradkleine/docker-registry-frontend:v2
+        environment:
+            ENV_DOCKER_REGISTRY_HOST: registry
+            ENV_DOCKER_REGISTRY_PORT: 5000
+            ENV_REGISTRY_PROXY_FQDN: $DOMAIN
+            ENV_REGISTRY_PROXY_PORT: 443
+        links:
+            - registry
+        depends_on:
+            - registry
+        volumes:
+            - ./auth:/auth
