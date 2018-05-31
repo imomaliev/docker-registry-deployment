@@ -3,7 +3,10 @@ version: '3'
 services:
     nginx:
         image: nginx:mainline-alpine
-        command: /bin/bash -c "envsubst '$$EMAIL $$DOMAIN' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+        command: /bin/sh -c "envsubst '$$EMAIL $$DOMAIN' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+        environment:
+            - EMAIL
+            - DOMAIN
         ports:
             - 443:443
             - 80:80
@@ -15,7 +18,7 @@ services:
             - registry
         volumes:
             - ./auth:/auth
-            - ./nginx/:/etc/nginx/conf.d/
+            - ./nginx/default.template:/etc/nginx/conf.d/default.template
             - ./letsencrypt/etc/:/etc/letsencrypt/
             - ./letsencrypt/lib/:/var/lib/letsencrypt/
     registry:
