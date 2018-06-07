@@ -16,7 +16,7 @@ server {
     chunked_transfer_encoding on;
 
     location /.well-known/acme-challenge/ {
-        root /etc/letsencrypt;
+        root /var/www/letsencrypt;
     }
 
     location /v2/ {

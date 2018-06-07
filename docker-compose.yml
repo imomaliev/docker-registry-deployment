@@ -1,14 +1,16 @@
-version: '3'
+version: "3"
+
 
 services:
     nginx:
-        image: nginx:mainline-alpine
+        image: nginx:stable-alpine
+        # using shell variant to pass env variables
         command: /bin/sh -c "envsubst '$$DOMAIN' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
         environment:
             - DOMAIN
         ports:
-            - 443:443
-            - 80:80
+            - "443:443"
+            - "80:80"
         links:
             - frontend
             - registry
@@ -18,8 +20,10 @@ services:
         volumes:
             - ./auth:/auth
             - ./nginx/default.template:/etc/nginx/conf.d/default.template
+            - ./letsencrypt/www/:/var/www/letsencrypt/
             - ./letsencrypt/etc/:/etc/letsencrypt/
             - ./letsencrypt/lib/:/var/lib/letsencrypt/
+
     registry:
         image: registry:2
         environment:
@@ -30,6 +34,7 @@ services:
         volumes:
             - ./auth:/auth
             - ./data:/data
+
     frontend:
         image: konradkleine/docker-registry-frontend:v2
         environment:

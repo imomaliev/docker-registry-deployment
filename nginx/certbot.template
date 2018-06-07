@@ -3,6 +3,6 @@ server {
     server_name ${DOMAIN};
 
     location /.well-known/acme-challenge/ {
-        root /etc/letsencrypt;
+        root /var/www/letsencrypt;
     }
 }
